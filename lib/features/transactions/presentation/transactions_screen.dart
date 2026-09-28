@@ -1,7 +1,9 @@
+// features/transactions/presentation/transactions_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:wealth_flow/features/transactions/domain/transaction_entry.dart';
 import 'package:wealth_flow/features/transactions/presentation/bloc/transaction_bloc.dart';
+import 'package:wealth_flow/features/transactions/presentation/widgets/add_transaction_dialog.dart';
 
 /// Feature: transactions – presentation layer.
 /// Bloc-driven: state in, widgets out. The screen owns NO data itself.
@@ -55,10 +57,17 @@ class TransactionsScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // #4: opens the "Buchung anlegen" dialog (your task!)
-          // Hint: context.read<TransactionBloc>()
-          //          .add(TransactionAdded(...));
+        onPressed: () async {
+          final entry = await showDialog<TransactionEntry>(
+            context: context,
+            builder: (_) => const AddTransactionDialog(),
+          );
+
+          if (!context.mounted || entry == null) {
+            return;
+          }
+
+          context.read<TransactionBloc>().add(TransactionAdded(entry));
         },
         child: const Icon(Icons.add),
       ),
