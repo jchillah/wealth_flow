@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:wealth_flow/features/transactions/data/demo_transaction_data.dart';
 import 'package:wealth_flow/features/transactions/domain/transaction_entry.dart';
+import 'package:wealth_flow/features/transactions/presentation/bloc/transaction_bloc.dart';
 
 /// Feature: dashboard (presentation layer).
-/// The financial overview – real charts arrive in milestone M5 (fl_chart).
+/// Reads the SAME bloc as the list – one source of truth, both
+/// screens can never disagree about the data.
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final transactions = DemoTransactionData.transactions;
+
+    // context.watch: subscribes THIS build() to the bloc – rebuilds
+    // whenever new state arrives. (read = no subscription; for
+    // one-shot actions like button callbacks.)
+    final transactions = context.watch<TransactionBloc>().state.transactions;
 
     final income = _sum(transactions, isIncome: true);
     final expenses = _sum(transactions, isIncome: false);
@@ -32,8 +38,7 @@ class DashboardScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     '${balance.toStringAsFixed(2)} €',
-                    // Conditional color: negative balance → error color.
-                    // Never hardcode – colorScheme respects dark mode later.
+                    // Negative balance → error color, theme-aware.
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: balance < 0
@@ -48,7 +53,6 @@ class DashboardScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              // Expanded: splits horizontal space 50/50 on every screen size.
               Expanded(
                 child: _SummaryTile(
                   icon: Icons.arrow_downward,
