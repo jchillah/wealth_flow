@@ -34,7 +34,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
         ? null
         : double.tryParse(_amountController.text.trim().replaceAll(',', '.'));
 
-    if (amount == null || amount <= 0) {
+    if (amount == null || !amount.isFinite || amount <= 0) {
       return;
     }
 
@@ -111,7 +111,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                     value.trim().replaceAll(',', '.'),
                   );
 
-                  if (amount == null) {
+                  if (amount == null || !amount.isFinite) {
                     return 'Bitte eine gültige Zahl eingeben.';
                   }
 
