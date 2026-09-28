@@ -1,11 +1,12 @@
 // Unit tests for TransactionBloc – pure logic, no widgets, milliseconds fast.
-// This is the payoff of the bloc architecture: business logic is
-// testable without a single line of UI code.
+// The seam in action: tests inject the repository they want,
+// with exactly the seed data they need.
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:wealth_flow/features/transactions/data/demo_transaction_data.dart';
+import 'package:wealth_flow/features/transactions/data/mock_transaction_repository.dart';
 import 'package:wealth_flow/features/transactions/domain/transaction_entry.dart';
 import 'package:wealth_flow/features/transactions/presentation/bloc/transaction_bloc.dart';
 
@@ -17,14 +18,25 @@ void main() {
     date: DateTime(2026, 9, 28, 12),
   );
 
+  TransactionBloc blocWith({List<TransactionEntry>? seed}) => TransactionBloc(
+    MockTransactionRepository(seed: seed),
+  );
+
   group('TransactionBloc', () {
     test('starts with an empty list', () {
-      expect(TransactionBloc().state.transactions, isEmpty);
+      expect(blocWith().state.transactions, isEmpty);
     });
 
     blocTest<TransactionBloc, TransactionState>(
-      'TransactionListStarted loads the demo data',
-      build: TransactionBloc.new,
+      'started loads whatever the repository provides (custom seed)',
+      build: () => blocWith(seed: [testEntry]),
+      act: (bloc) => bloc.add(const TransactionListStarted()),
+      expect: () => [TransactionState(transactions: [testEntry])],
+    );
+
+    blocTest<TransactionBloc, TransactionState>(
+      'started loads the mock demo data (default seed)',
+      build: blocWith,
       act: (bloc) => bloc.add(const TransactionListStarted()),
       expect: () => [
         TransactionState(transactions: DemoTransactionData.transactions),
@@ -32,17 +44,15 @@ void main() {
     );
 
     blocTest<TransactionBloc, TransactionState>(
-      'TransactionAdded appends the entry',
-      build: TransactionBloc.new,
+      'added appends the entry',
+      build: blocWith,
       act: (bloc) => bloc.add(TransactionAdded(testEntry)),
-      expect: () => [
-        TransactionState(transactions: [testEntry]),
-      ],
+      expect: () => [TransactionState(transactions: [testEntry])],
     );
 
     blocTest<TransactionBloc, TransactionState>(
-      'TransactionRemoved removes exactly that entry',
-      build: TransactionBloc.new,
+      'removed removes exactly that entry',
+      build: blocWith,
       act: (bloc) => bloc
         ..add(const TransactionListStarted())
         ..add(TransactionRemoved(DemoTransactionData.transactions.first)),
