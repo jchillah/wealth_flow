@@ -2,7 +2,7 @@
 
 > Personal finance & asset tracker built with Flutter – classic budget tracking meets a live crypto dashboard, designed offline-first.
 
-🚧 **Status: Work in progress** – built feature by feature as a portfolio project. Progress is tracked publicly on the [project board](https://github.com/users/jchillah/projects) and in the [milestones](https://github.com/jchillah/wealth_flow/milestones).
+🚧 **Status: Work in progress** – built feature by feature as a portfolio project. Progress is tracked publicly on the [project board](https://github.com/users/jchillah/projects/47) and in the [milestones](https://github.com/jchillah/wealth_flow/milestones).
 
 ## ✨ Features
 
